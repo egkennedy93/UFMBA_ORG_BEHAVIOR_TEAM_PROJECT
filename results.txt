@@ -1,0 +1,13 @@
+question 1.a: 
+  Behavior  Correlation Value
+0    agree           0.472825
+1    extra           0.204194
+2     open           0.003057
+3  conscin           0.160159
+4    neuro          -0.228955
+
+question 1.b 
+       Behavior  Correlation Value
+0           OCB           0.161896
+1    Incivility          -0.263945
+2  Cyberloafing          -0.383543
