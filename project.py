@@ -1,4 +1,4 @@
-
+#%%
 from pandas import Series, DataFrame
 import numpy as np
 import pandas as pd
@@ -9,7 +9,6 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 data_file = 'GatorCandy Case Data_Fall2021.sav'
 
 data = pd.read_spss(dir_path+'/data_files/'+data_file)
-
 
 
 df = data
@@ -45,12 +44,20 @@ def question_one(part):
         print("you must select a or b")
 
 
+def question_two():
+    avg_MSQ = df['msq'].mean()
+    avg_PSQ = df['psq'].mean()
 
-print("question 1.a:")
-print(question_one('a'))
-print("\n")
-print("question 1.b")
-print(question_one('b'))
+    data_list = [avg_MSQ, avg_PSQ]
+    return data_list
+
+# print("question 1.a:")
+# print(question_one('a'))
+# print("\n")
+# print("question 1.b")
+# print(question_one('b'))
+
+print(question_two())
 
 
 
