@@ -4,12 +4,14 @@ import numpy as np
 import pandas as pd
 import os
 import seaborn as sns
-from scipy.stats import ttest_1samp, ttest_ind
+from scipy.stats import ttest_1samp, f_oneway
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-data_file = 'GatorCandy Case Data_Fall2021.sav'
+data_file = 'GatorCandy Case Data_Fall2021.csv'
 
-data = pd.read_spss(dir_path+'/data_files/'+data_file)
+data = pd.read_csv(dir_path+'/data_files/'+data_file)
 
 
 df = data
@@ -45,62 +47,71 @@ def question_one(part):
         print("you must select a or b")
 
 
-def question_two(part):
+def question_two():
 
     headers = ['overall', 'pay','work',' coworkers','supervision','promotions','salary','merit']
 
     benchmark_data_mean = [74.72, 59.05, 37.19, 38.61, 39.58, 7.45, 70523, 3500]
     benchmark_data_stdv = [10.49, 12.52, 11.72, 12.37, 10.01, 14.43, 30597, 541]
     benchmark_data_sample = [395, 250, 400, 400, 370, 440, 1250, 1250]
-
-    if part.lower() == 'a':
         
-        avg_overall_satisfaction = df['msq'].mean()
-        avg_pay_satisfaction = df['psq'].mean()
-        avg_satisfaction_work = df['jdiw'].mean()
-        avg_satisfaction_cowork = df['jdic'].mean()
-        avg_satisfaction_super = df['jdis'].mean()
-        avg_satisfaction_promo_oppo = df['jdipro'].mean()
-        avg_salary = df['salary'].mean()
-        avg_merit = df['merit'].mean()
+    avg_overall_satisfaction = df['msq'].mean()
+    avg_pay_satisfaction = df['psq'].mean()
+    avg_satisfaction_work = df['jdiw'].mean()
+    avg_satisfaction_cowork = df['jdic'].mean()
+    avg_satisfaction_super = df['jdis'].mean()
+    avg_satisfaction_promo_oppo = df['jdipro'].mean()
+    avg_salary = df['salary'].mean()
+    avg_merit = df['merit'].mean()
 
-        ttest_overall_satisfaction = ttest_1samp(df['msq'], benchmark_data_mean[0])
-        ttest_pay_satisfaction = ttest_1samp(df['psq'], benchmark_data_mean[1])
-        ttest_satisfaction_work = ttest_1samp(df['jdiw'], benchmark_data_mean[2])
-        ttest_satisfaction_cowork = ttest_1samp(df['jdic'], benchmark_data_mean[3])
-        ttest_satisfaction_super = ttest_1samp(df['jdis'], benchmark_data_mean[4])
-        ttest_satisfaction_promo_oppo = ttest_1samp(df['jdipro'], benchmark_data_mean[5])
-        ttest_salary = ttest_1samp(df['salary'], benchmark_data_mean[6])
-        ttest_merit = ttest_1samp(df['merit'], benchmark_data_mean[7])
+    ttest_overall_satisfaction = ttest_1samp(df['msq'], benchmark_data_mean[0])
+    ttest_pay_satisfaction = ttest_1samp(df['psq'], benchmark_data_mean[1])
+    ttest_satisfaction_work = ttest_1samp(df['jdiw'], benchmark_data_mean[2])
+    ttest_satisfaction_cowork = ttest_1samp(df['jdic'], benchmark_data_mean[3])
+    ttest_satisfaction_super = ttest_1samp(df['jdis'], benchmark_data_mean[4])
+    ttest_satisfaction_promo_oppo = ttest_1samp(df['jdipro'], benchmark_data_mean[5])
+    ttest_salary = ttest_1samp(df['salary'], benchmark_data_mean[6])
+    ttest_merit = ttest_1samp(df['merit'], benchmark_data_mean[7])
 
-        ttest_list = [ttest_overall_satisfaction[0], ttest_pay_satisfaction[0], ttest_satisfaction_work[0], 
-                      ttest_satisfaction_cowork[0], ttest_satisfaction_super[0], ttest_satisfaction_promo_oppo[0],
-                      ttest_salary[0], ttest_merit[0]]
-
-        pvalue_list = [ttest_overall_satisfaction[1], ttest_pay_satisfaction[1], ttest_satisfaction_work[1], 
-                      ttest_satisfaction_cowork[1], ttest_satisfaction_super[1], ttest_satisfaction_promo_oppo[1],
-                      ttest_salary[1], ttest_merit[1]]
-
-        avg_list = [avg_overall_satisfaction, avg_pay_satisfaction, avg_satisfaction_work, 
-                    avg_satisfaction_cowork, avg_satisfaction_super, avg_satisfaction_promo_oppo, avg_salary, avg_merit]
-
-        # print(ttest_list)
-        # print(pvalue_list)
-        for i in range(len(avg_list)):
-            print(headers[i])
-            print('gator: '+str(avg_list[i]), 'benchmark: '+str(benchmark_data_mean[i]), 'p-score: '+str(pvalue_list[i]))
-            if avg_list[i] < benchmark_data_mean[i]:
-                print("lower! \n")
-            else:
-                print("higher \n")
+    avg_list = [avg_overall_satisfaction, avg_pay_satisfaction, avg_satisfaction_work, 
+                avg_satisfaction_cowork, avg_satisfaction_super, avg_satisfaction_promo_oppo, avg_salary, avg_merit]
 
 
-        
-        #part a
-        # we are lower in everything except  for 
+    ttest_list = [ttest_overall_satisfaction[0], ttest_pay_satisfaction[0], ttest_satisfaction_work[0], 
+                    ttest_satisfaction_cowork[0], ttest_satisfaction_super[0], ttest_satisfaction_promo_oppo[0],
+                    ttest_salary[0], ttest_merit[0]]
 
-        return 
-        
+    pvalue_list = [ttest_overall_satisfaction[1], ttest_pay_satisfaction[1], ttest_satisfaction_work[1], 
+                    ttest_satisfaction_cowork[1], ttest_satisfaction_super[1], ttest_satisfaction_promo_oppo[1],
+                    ttest_salary[1], ttest_merit[1]]
+
+    
+    diff_value = []
+    for i in range(len(avg_list)): 
+        value = avg_list[i] - benchmark_data_mean[i]
+        diff_value.append(value)
+
+    q2_df = DataFrame([]) 
+    q2_df.insert(0,"Behavior",headers, True)
+    q2_df.insert(1, "GatorCandy Avg", avg_list, True)
+    q2_df.insert(2, "Benchmark Avg", benchmark_data_mean)
+    q2_df.insert(3, "Difference in Avg", diff_value, True)
+    q2_df.insert(4, "t-test result", ttest_list, True)
+    q2_df.insert(5, "P-Value result", pvalue_list, True)
+
+    return q2_df
+
+
+def question_four():
+    q3_df = df[['msq', 'psq', 'jdiw', 'jdic', 'jdis', 'jdipro', 'salary','merit', 'sex', 'eeo']]
+    filtered_q3_df = q3_df.loc[q3_df['sex'] == 2]
+    print(filtered_q3_df)
+    lm = ols('sex ~ msq', data=filtered_q3_df).fit()
+    table = sm.stats.anova_lm(lm)
+    print(table)
+   
+
+
 
 # print("question 1.a:")
 # print(question_one('a'))
@@ -108,7 +119,9 @@ def question_two(part):
 # print("question 1.b")
 # print(question_one('b'))
 
-print(question_two('a'))
+# print(question_two())
+
+question_four()
 
 
 
